@@ -1,4 +1,5 @@
 import requests
+from requests.adapters import HTTPAdapter
 import json
 import sys
 
@@ -22,6 +23,11 @@ buckets = ["id:7digital-US",
 "id:spotify",
 "id:spotify-WW",
 "id:tumblr"]
+
+
+# Use 5 retries for EN queries
+s = requests.Session()
+s.mount("http://developer.echonest.com", HTTPAdapter(max_retries=5))
 
 def en_query(url, params):
     params["api_key"] =  config.ECHONEST_KEY
