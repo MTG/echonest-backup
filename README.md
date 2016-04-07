@@ -27,6 +27,13 @@ Run it like this:
 
     python lookup.py track_metadata.db
 
+Additional sources of data
+==========================
+
+ * Use `/artist/songs` to get other songs that Echo Nest knows about (starting with artists in MSD)
+ * Unknown: How to get more artists
+ * Get other datasets/lists of IDs from other sources
+
 License
 =======
 
