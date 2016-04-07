@@ -1,0 +1,10 @@
+# Virtual enviroment
+env
+
+__pycache__
+# vim
+*.swp
+
+# shouldn't be added to the project
+config.py
+track_metadata.db
