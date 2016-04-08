@@ -30,9 +30,22 @@ Run it like this:
 Additional sources of data
 ==========================
 
+ * We can query Echo Nest API using IDs from other rosetta stone ID spaces.
+  * To start with, get all artist MBIDs from MusicBrainz and map to EN Artist IDs
+  * Use Discogs artist list to search EN for artist ids
  * Use `/artist/songs` to get other songs that Echo Nest knows about (starting with artists in MSD)
- * Unknown: How to get more artists
  * Get other datasets/lists of IDs from other sources
+
+Status
+======
+ * April 8: MSD lookup finished. Interestingly, lookups seem to have failed for ~20% of the available IDs
+ * April 8: We have collected MusicBrainz artist ids to look up on EN
+
+Help us
+=======
+We still need development effort on the following tasks:
+ * Search EN using artist names from Discogs ([#1](https://github.com/MTG/echonest-backup/issues/1))
+ * Find all songs by an artist ([#3](https://github.com/MTG/echonest-backup/issues/3))
 
 License
 =======
