@@ -1,7 +1,10 @@
 # Virtual enviroment
 env
 
+# python
 __pycache__
+*.pyc
+
 # vim
 *.swp
 
