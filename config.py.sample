@@ -1,2 +1,4 @@
 
 ECHONEST_KEY = ""
+
+SQLALCHEMY_DATABASE_URI = "postgresql://echonest@/echonest"
