@@ -20,8 +20,8 @@ CREATE TABLE discogs_artist (
 
 CREATE TABLE echonest_response (
   id          SERIAL,
+  url         VARCHAR NOT NULL,
   query       VARCHAR NOT NULL,
-  entity      VARCHAR NOT NULL,
   date        TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 

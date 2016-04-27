@@ -8,7 +8,7 @@ CREATE UNIQUE INDEX discogs_artist_ndx_name ON discogs_artist (name);
 
 CREATE INDEX echonest_response_date ON echonest_response (date);
 CREATE INDEX echonest_response_query ON echonest_response (query);
-CREATE INDEX echonest_response_entity ON echonest_response (entity);
+CREATE INDEX echonest_response_url ON echonest_response (url);
 
 CREATE INDEX echonest_response_json_id ON echonest_response_json (id);
 
