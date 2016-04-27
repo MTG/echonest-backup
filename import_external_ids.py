@@ -20,12 +20,47 @@ Discogs:
 Run
 
     import_external_ids.py discogs <datafile>
+
+MSD Song:
+    Song ids from the MSD metadata db
+
+Run
+    import_external_ids.py msdsong track_metadata.db
+
+MSD Artist:
+    Artist ids from the MSD metadata db
+
+Run
+    import_external_ids.py msdartist track_metadata.db
 """
 
 import config
 import db
+import db.data
 import argparse
 from sqlalchemy import text
+import sqlite3
+
+def get_sqlite_cursor(sqlfname):
+    conn = sqlite3.connect(sqlfname)
+    return conn.cursor()
+
+def import_msd_artists(sqlfname):
+    q = "select distinct(artist_id) from songs"
+    c = get_sqlite_cursor(sqlfname)
+    artists = []
+    for row in c.execute(q):
+        db.data.add_echonest_artist_id(row[0])
+
+
+def import_msd_songs(sqlfname):
+    q = "select distinct(song_id) from songs"
+    c = get_sqlite_cursor(sqlfname)
+    songs = []
+    for row in c.execute(q):
+        songs.append(row[0])
+    db.data.add_echonest_song_ids(songs)
+
 
 def import_musicbrainz(fname):
     mbids = open(fname).read().splitlines()
@@ -51,10 +86,14 @@ def main(args):
         import_musicbrainz(args.filename)
     elif args.source == "discogs":
         import_discogs(args.filename)
+    elif args.source == "msdartist":
+        import_msd_artists(args.filename)
+    elif args.source == "msdsong":
+        import_msd_songs(args.filename)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Import external ids into the database")
-    parser.add_argument("source", choices=["musicbrainz", "discogs"])
+    parser.add_argument("source", choices=["musicbrainz", "discogs", "msdsong", "msdartist"])
     parser.add_argument("filename")
     args = parser.parse_args()
     main(args)
