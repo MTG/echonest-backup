@@ -45,7 +45,7 @@ def en_query(url_fragment, params, token):
     r = s.get(url, params=params)
     if r.status_code == 429:
         logging.info("sleeping because ratelimit exceeded")
-        time.sleep(30)
+        time.sleep(15)
         return en_query(url, params)
     else:
         headers = r.headers
@@ -54,7 +54,10 @@ def en_query(url_fragment, params, token):
             logging.info("sleeping because less than 10 remaining this minute")
             time.sleep(5)
         d = r.json()
-        return d
+        if d["response"]["status"]["code"] == 0:
+            return d
+        else:
+            raise Exception(json.dumps(d["response"]["status"]))
 
 SONG_PROFILE = "/song/profile"
 def song_by_enid(songid, token=0):
