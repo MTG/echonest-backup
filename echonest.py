@@ -83,7 +83,22 @@ def artist_profile(artistid):
     return d
 
 ARTIST_SONGS = "/artist/songs"
-def songs_for_artist(artistid):
-    params = {"id": artistid, "results": 100}
-    d = en_query(ARTIST_SONGS, params)
-    return d
+def songs_for_artist(artistid, token=0):
+    numresults = 100
+    start = 0
+    count = numresults
+    songs = []
+
+    params = {"id": artistid, "results": numresults, "start": start}
+    d = en_query(ARTIST_SONGS, params, token)
+    total = d["response"]["total"]
+    songs.extend(d["response"]["songs"])
+    # API returns an error if start >= 2000, so we stop here.
+    while count <= total and start < 2000-numresults:
+        start += numresults
+        params = {"id": artistid, "results": numresults, "start": start}
+        d = en_query(ARTIST_SONGS, params, token)
+        ss = d["response"]["songs"]
+        count += numresults
+        songs.extend(ss)
+    return songs
