@@ -58,8 +58,9 @@ def en_query(url_fragment, params, token):
 
 SONG_PROFILE = "/song/profile"
 def song_by_enid(songid, token=0):
+    buckets = rosetta_buckets + ["tracks"]
     params = {"id": songid,
-              "bucket": rosetta_buckets}
+              "bucket": buckets}
     d = en_query(SONG_PROFILE, params, token)
     return d
 
