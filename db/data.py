@@ -1,6 +1,45 @@
 import db
 from sqlalchemy import text
 import json
+import echonest
+
+
+def get_artist_tracks():
+    q = text("""
+        SELECT enrj.data
+          FROM echonest_response_json enrj
+          JOIN echonest_response enr on enrj.id=enr.id
+         WHERE enr.url = '/artist/songs'
+        """)
+    with db.engine.begin() as connection:
+        res = connection.execute(q)
+        return [r[0] for r in res.fetchall()]
+
+def get_count_en_artists(url):
+    q = text("""
+        SELECT ena.artistid
+          FROM echonest_artist ena
+     LEFT JOIN echonest_response enr
+            ON ena.artistid = enr.query
+           AND enr.url = :theurl
+         WHERE enr.id is null""")
+    with db.engine.begin() as connection:
+        res = connection.execute(q, {"theurl": url})
+        return res.rowcount
+    return 0
+
+def get_pending_en_artists(url):
+    q = text("""
+        SELECT ena.artistid
+          FROM echonest_artist ena
+     LEFT JOIN echonest_response enr
+            ON ena.artistid = enr.query
+           AND enr.url = :theurl
+         WHERE enr.id is null
+         LIMIT 100""")
+    with db.engine.begin() as connection:
+        res = connection.execute(q, {"theurl": url})
+        return [r[0] for r in res.fetchall()]
 
 def get_pending_musicbrainz_artists():
     """Get 100 MusicBrainz Artist ids which have not been mapped
@@ -32,6 +71,17 @@ def get_pending_songs():
         res = connection.execute(q, {"song_profile": "/song/profile"})
         return [r[0] for r in res.fetchall()]
 
+def get_count_pending_songs():
+    q = text("""
+        SELECT ens.songid
+          FROM echonest_song ens
+     LEFT JOIN echonest_response enr
+            ON ens.songid = enr.query
+           AND enr.url = :song_profile
+         WHERE enr.id is NULL""")
+    with db.engine.begin() as connection:
+        res = connection.execute(q, {"song_profile": "/song/profile"})
+        return res.rowcount
 
 
 def add_response_if_not_exists(url, query, data):
