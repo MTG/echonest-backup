@@ -38,7 +38,10 @@ s = requests.Session()
 s.mount("http://developer.echonest.com", HTTPAdapter(max_retries=5))
 
 def en_query(url_fragment, params, token):
-    key = config.ECHONEST_KEY[token]
+    if not isinstance(config.ECHONEST_KEY, list):
+        key = config.ECHONEST_KEY
+    else:
+        key = config.ECHONEST_KEY[token]
     params["api_key"] = key
     params["format"] = "json"
     url = "http://developer.echonest.com/api/v4" + url_fragment
@@ -46,7 +49,7 @@ def en_query(url_fragment, params, token):
     if r.status_code == 429:
         logging.info("sleeping because ratelimit exceeded")
         time.sleep(15)
-        return en_query(url, params)
+        return en_query(url, params, token)
     else:
         headers = r.headers
         remaining = int(headers.get("x-ratelimit-remaining", "0"))
@@ -76,10 +79,10 @@ def track_by_enid(trackid):
     return d
 
 ARTIST_PROFILE = "/artist/profile"
-def artist_profile(artistid):
+def artist_profile(artistid, token=0):
     params = {"id": artistid,
               "bucket": rosetta_buckets}
-    d = en_query(ARTIST_PROFILE, params)
+    d = en_query(ARTIST_PROFILE, params, token)
     return d
 
 ARTIST_SONGS = "/artist/songs"
