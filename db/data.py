@@ -66,7 +66,7 @@ def get_pending_songs():
             ON ens.songid = enr.query
            AND enr.url = :song_profile
          WHERE enr.id is NULL
-         LIMIT 100""")
+         LIMIT 500""")
     with db.engine.begin() as connection:
         res = connection.execute(q, {"song_profile": "/song/profile"})
         return [r[0] for r in res.fetchall()]
