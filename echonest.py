@@ -56,7 +56,9 @@ def en_query(url_fragment, params, token):
         if remaining < 10:
             logging.info("sleeping because less than 10 remaining this minute")
             time.sleep(5)
-        d = r.json()
+        c = r.text
+        c = c.replace(r"\u0000", u"")
+        d = json.loads(c)
         if d["response"]["status"]["code"] == 0:
             return d
         else:
