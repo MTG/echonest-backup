@@ -1,22 +1,14 @@
 import config
 import db
 import db.data
-import logging
 import util
 import time
 import datetime
 
-import logging
-logfmt = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-lookuplog = logging.Logger('lookup')
-ch = logging.StreamHandler()
-ch.setFormatter(logfmt)
-lookuplog.setLevel(logging.INFO)
-lookuplog.addHandler(ch)
 
 import concurrent.futures
 import echonest
+import log
 
 def query(songid, token):
     data = echonest.song_by_enid(songid, token)
@@ -52,16 +44,6 @@ def lookup():
                 db.data.add_response_if_not_exists(echonest.SONG_PROFILE, songid, data)
     return (len(songs), songcount-len(songs))
 
-def stats(done, total, starttime):
-    nowtime = time.time()
-    position = done*1.0 / total
-    duration = round(nowtime - starttime)
-    durdelta = datetime.timedelta(seconds=duration)
-    remaining = round((duration / position) - duration)
-    remdelta = datetime.timedelta(seconds=remaining)
-
-    return str(durdelta), str(remdelta)
-
 
 def main():
     db.init_db_engine(config.SQLALCHEMY_DATABASE_URI)
@@ -73,8 +55,8 @@ def main():
     while rem > 0:
         thisdone, rem = lookup()
         done += thisdone
-        durdelta, remdelta = stats(done, total, starttime)
-        lookuplog.info("Done %s/%s in %s; %s remaining", done, total, str(durdelta), str(remdelta))
+        durdelta, remdelta = util.stats(done, total, starttime)
+        log.info("Done %s/%s in %s; %s remaining", done, total, str(durdelta), str(remdelta))
 
 if __name__ == "__main__":
     main()

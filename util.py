@@ -1,5 +1,7 @@
 import os
 import errno
+import time
+import datetime
 
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
@@ -15,3 +17,12 @@ def mkdir_p(path):
         else:
             raise
 
+def stats(done, total, starttime):
+    nowtime = time.time()
+    position = done*1.0 / total
+    duration = round(nowtime - starttime)
+    durdelta = datetime.timedelta(seconds=duration)
+    remaining = round((duration / position) - duration)
+    remdelta = datetime.timedelta(seconds=remaining)
+
+    return str(durdelta), str(remdelta)
