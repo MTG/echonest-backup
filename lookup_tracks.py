@@ -24,24 +24,35 @@ def lookup():
         return (0, 0)
 
     # We can use a with statement to ensure threads are cleaned up promptly
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         # Start the load operations and mark each future with its URL
         i = 0
         future_to_song = {}
-        for song in songs:
-            future_to_song[executor.submit(query, song, i)] = song
+        for songchunk in util.chunks(songs, 10):
+            future_to_song[executor.submit(query, songchunk, i)] = songchunk
             i = 1 - i
 
         for future in concurrent.futures.as_completed(future_to_song):
-            songid = future_to_song[future]
+            songchunk = future_to_song[future]
             # For each set of songs, get them from the response
             # for songs not in the response, add an empty response
             try:
                 data = future.result()
             except Exception as exc:
-                print('%r generated an exception: %s' % (songid, exc))
+                print('%r generated an exception: %s' % (songchunk, exc))
             else:
-                db.data.add_response_if_not_exists(echonest.SONG_PROFILE, songid, data)
+                gotsongs = set()
+                waitings = set(songchunk)
+                results = data["response"].get("songs", [])
+                for s in results:
+                    songid = s["id"]
+                    gotsongs.add(songid)
+                    response = {"response": {"songs": [s], "status": data["response"]["status"]}}
+                    db.data.add_response_if_not_exists(echonest.SONG_PROFILE, songid, response)
+                nosongs = waitings-gotsongs
+                for s in list(nosongs):
+                    db.data.add_response_if_not_exists(echonest.SONG_PROFILE, s, {})
+
     return (len(songs), songcount-len(songs))
 
 
